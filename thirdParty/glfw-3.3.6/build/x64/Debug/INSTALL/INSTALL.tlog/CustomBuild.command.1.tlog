@@ -1,0 +1,10 @@
+^H:\PROJECT\VULKAN\THIRDPART\GLFW-3.3.6\BUILD\CMAKEFILES\CF7FB1A19D6E0BA4A5768F58DEE05789\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

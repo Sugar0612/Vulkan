@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="H:\Project\Vulkan\thirdPart\glfw-3.3.6\build\CMakeFiles\cf7fb1a19d6e0ba4a5768f58dee05789\uninstall.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="H:\Project\Vulkan\thirdPart\glfw-3.3.6\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="H:\Project\Vulkan\thirdPart\glfw-3.3.6\build\CMakeFiles\uninstall" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{684D4440-45D7-3C77-B606-3FD540805BB1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

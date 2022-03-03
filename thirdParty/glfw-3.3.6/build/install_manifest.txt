@@ -1,0 +1,8 @@
+H:/Project/Vulkan/thirdPart/glfw-out/lib/glfw3.lib
+H:/Project/Vulkan/thirdPart/glfw-out/include/GLFW/glfw3.h
+H:/Project/Vulkan/thirdPart/glfw-out/include/GLFW/glfw3native.h
+H:/Project/Vulkan/thirdPart/glfw-out/lib/cmake/glfw3/glfw3Config.cmake
+H:/Project/Vulkan/thirdPart/glfw-out/lib/cmake/glfw3/glfw3ConfigVersion.cmake
+H:/Project/Vulkan/thirdPart/glfw-out/lib/cmake/glfw3/glfw3Targets.cmake
+H:/Project/Vulkan/thirdPart/glfw-out/lib/cmake/glfw3/glfw3Targets-debug.cmake
+H:/Project/Vulkan/thirdPart/glfw-out/lib/pkgconfig/glfw3.pc

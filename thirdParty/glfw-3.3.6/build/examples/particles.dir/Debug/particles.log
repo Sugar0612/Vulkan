@@ -1,0 +1,7 @@
+﻿  Building Custom Rule H:/Project/Vulkan/thirdPart/glfw-3.3.6/examples/CMakeLists.txt
+  particles.c
+  tinycthread.c
+  getopt.c
+  glad_gl.c
+  正在生成代码...
+  particles.vcxproj -> H:\Project\Vulkan\thirdPart\glfw-3.3.6\build\examples\Debug\particles.exe
