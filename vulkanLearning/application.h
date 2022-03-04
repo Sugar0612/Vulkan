@@ -1,9 +1,15 @@
 #pragma once
 
 #include"base.h"
+#include"vulkanWrapper/instance.h"
 
 namespace FF {
+
+	const int WIDTH = 800;
+	const int HEIGHT = 600;
+
 	class Application {
+
 	public:
 		Application() = default;
 
@@ -20,6 +26,7 @@ namespace FF {
 		void clearUp();
 
 	private:
-		GLFWwindow* mWindow { NULL };
+		GLFWwindow* mWindow = nullptr;
+		Wrapper::Instance::Ptr mInstance;
 	};
-}
+};

@@ -16,6 +16,8 @@ SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/../thirdParty/glfw-out/lib
 SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/../thirdParty/Vulkan/Lib
 )
 
+add_subdirectory(vulkanWrapper)
+
 add_executable(vulkanLearning-1 ${DIRSRCS} )
 
-target_link_libraries(vulkanLearning-1 vulkan-1.lib glfw3.lib)
+target_link_libraries(vulkanLearning-1 vulkanLib vulkan-1.lib glfw3.lib)
