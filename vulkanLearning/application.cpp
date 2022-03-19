@@ -2,6 +2,7 @@
 
 namespace FF {
 
+	// run会一次调用这些函数..
 	void Application::run() {
 		initWindow();
 		initVulkan();
@@ -29,12 +30,16 @@ namespace FF {
 
 	void Application::mainLooper() {
 		while (!glfwWindowShouldClose(mWindow)) {
+			//解析鼠标键盘事件..
 			glfwPollEvents();
 		}
 	}
 
+	//资源回收..
 	void Application::clearUp() {
 		glfwDestroyWindow(mWindow);
+
+		//退出..
 		glfwTerminate();
 	}
 }

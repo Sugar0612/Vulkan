@@ -16,7 +16,7 @@ namespace FF {
 		~Application() = default;
 
 		void run();
-	private:
+
 		void initWindow();
 
 		void initVulkan();
@@ -27,6 +27,6 @@ namespace FF {
 
 	private:
 		GLFWwindow* mWindow = nullptr;
-		Wrapper::Instance::Ptr mInstance;
+		Wrapper::Instance::Inst_Ptr mInstance;
 	};
 };
