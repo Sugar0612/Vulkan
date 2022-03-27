@@ -25,7 +25,7 @@ namespace FF {
 	}
 
 	void Application::initVulkan() {
-		mInstance = Wrapper::Instance::create();
+		mInstance = Wrapper::Instance::create(true);
 	}
 
 	void Application::mainLooper() {

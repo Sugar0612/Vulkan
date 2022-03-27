@@ -2,7 +2,17 @@
 
 namespace FF::Wrapper {
 
-	Instance::Instance() {
+	// 设置 Layers..
+	const std::vector<const char*> validationLayers = {
+		"VK_LAYER_KHRONOS_validation"
+	};
+
+	Instance::Instance(bool enableValidationLayer): bEnableValidationLayer(enableValidationLayer) {
+		// 在启用的前提下检查...
+		if (bEnableValidationLayer && !checkVaildationLayersSupport()) {
+			throw std::runtime_error("Error: vaildation Layer is not supported!");
+		}
+
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Vulkan";
@@ -18,8 +28,18 @@ namespace FF::Wrapper {
 		std::vector<const char*> extensions = getRequiredExtensions();
 		instCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		instCreateInfo.ppEnabledExtensionNames = extensions.data();
+
+		// of layers..
+		if (bEnableValidationLayer) {
+			instCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			instCreateInfo.ppEnabledExtensionNames = validationLayers.data();
+		}
+		else {
+			instCreateInfo.enabledLayerCount = 0;
+		}
+
 		if (vkCreateInstance(&instCreateInfo, nullptr, &mInstance) != VK_SUCCESS) {
-			std::cout << "Error: failed create InstanceInfo!" << std::endl;
+			throw std::runtime_error("Error: failed create InstanceInfo!");
 		}
 	}
 
@@ -49,5 +69,29 @@ namespace FF::Wrapper {
 		// begin() ~ end()..
 		std::vector<const char*> Extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 		return Extensions;
+	}
+
+	bool Instance::checkVaildationLayersSupport() {
+		uint32_t LayerCount = 0;
+		vkEnumerateInstanceLayerProperties(&LayerCount, nullptr);
+		std::vector<VkLayerProperties> vc_Layers(LayerCount);
+		vkEnumerateInstanceLayerProperties(&LayerCount, vc_Layers.data());
+
+		for (auto& LayerName : validationLayers) {
+			bool isFound = false;
+
+			for (auto& validName : vc_Layers) {
+				if (0 == std::strcmp(LayerName, validName.layerName)) {
+					isFound = true;
+					break;
+				}
+			}
+
+			if (!isFound) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 };

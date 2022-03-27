@@ -2,6 +2,7 @@
 
 #include"../base.h"
 #include <vector>
+#include <string>
 
 namespace FF::Wrapper {
 	class Instance {
@@ -12,9 +13,9 @@ namespace FF::Wrapper {
 		using Inst_Ptr = std::shared_ptr<Instance>;
 
 		// return type shared_ptr on use make_shared..
-		static Inst_Ptr create() { return std::make_shared<Instance>(); }
+		static Inst_Ptr create(bool enableValidationLayer) { return std::make_shared<Instance>(enableValidationLayer); }
 
-		Instance();
+		Instance(bool enableVaildationLayer);
 
 		~Instance();
 
@@ -25,8 +26,12 @@ namespace FF::Wrapper {
 
 
 		std::vector<const char*> getRequiredExtensions();
+
+		// vaildationLayers..
+		bool checkVaildationLayersSupport();
 	private:
 
 		VkInstance mInstance;
+		bool bEnableValidationLayer = false;
 	};
 };
