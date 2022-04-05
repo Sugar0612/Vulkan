@@ -29,9 +29,11 @@ namespace FF::Wrapper {
 
 		// vaildationLayers..
 		bool checkVaildationLayersSupport();
+		void setupDebugger();
 	private:
 
 		VkInstance mInstance;
 		bool bEnableValidationLayer = false;
+		VkDebugUtilsMessengerEXT mDebugger;
 	};
 };

@@ -7,6 +7,42 @@ namespace FF::Wrapper {
 		"VK_LAYER_KHRONOS_validation"
 	};
 
+	//vadlidation layer回调函数
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallBack(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pMessageData,
+	void *pUserData) {
+		std::cout << "ValidationLayer: " << pMessageData->pMessage << std::endl;
+		return VK_FALSE;
+	}
+
+	//Info Create 辅助函数
+	static VkResult CreateDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks *pAllocator,
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT *debugMessenger) {
+		auto fun = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+
+		if (fun != nullptr) {
+			return fun(instance, pCreateInfo, pAllocator, debugMessenger);
+		}
+		else {
+			return VK_ERROR_EXTENSION_NOT_PRESENT;
+		}
+	}
+
+	// Info Destroy 辅助函数
+	static void DestroyDebugUtilsMessagerEXT(VkInstance instance,
+		const VkAllocationCallbacks *pAllocator, 
+		VkDebugUtilsMessengerEXT debugMessenger) {
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+
+		if (func != nullptr) {
+			return func(instance, debugMessenger, pAllocator);
+		}
+	}
+
 	Instance::Instance(bool enableValidationLayer): bEnableValidationLayer(enableValidationLayer) {
 		// 在启用的前提下检查...
 		if (bEnableValidationLayer && !checkVaildationLayersSupport()) {
@@ -32,7 +68,7 @@ namespace FF::Wrapper {
 		// of layers..
 		if (bEnableValidationLayer) {
 			instCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			instCreateInfo.ppEnabledExtensionNames = validationLayers.data();
+			instCreateInfo.ppEnabledLayerNames = validationLayers.data();
 		}
 		else {
 			instCreateInfo.enabledLayerCount = 0;
@@ -41,10 +77,8 @@ namespace FF::Wrapper {
 		if (vkCreateInstance(&instCreateInfo, nullptr, &mInstance) != VK_SUCCESS) {
 			throw std::runtime_error("Error: failed create InstanceInfo!");
 		}
-	}
 
-	Instance::~Instance() {
-		vkDestroyInstance(mInstance, nullptr);
+		setupDebugger();
 	}
 
 	void Instance::printAvailableExtensions() {
@@ -68,6 +102,8 @@ namespace FF::Wrapper {
 
 		// begin() ~ end()..
 		std::vector<const char*> Extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+		Extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		return Extensions;
 	}
 
@@ -93,5 +129,31 @@ namespace FF::Wrapper {
 		}
 
 		return true;
+	}
+
+	void Instance::setupDebugger() {
+		if (!bEnableValidationLayer) return;
+
+		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+
+		//消息级别
+		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		createInfo.pfnUserCallback = debugCallBack;
+		createInfo.pUserData = nullptr;
+
+		if (CreateDebugUtilsMessengerEXT(&createInfo, nullptr, mInstance, &mDebugger) != VK_ERROR_EXTENSION_NOT_PRESENT) {
+			std::runtime_error("Error: Failed to Create Debugger!");
+		}
+	}
+
+	Instance::~Instance() {
+		DestroyDebugUtilsMessagerEXT(mInstance, nullptr, mDebugger);
+		vkDestroyInstance(mInstance, nullptr);
 	}
 };

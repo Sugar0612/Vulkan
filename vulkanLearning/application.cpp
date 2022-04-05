@@ -37,6 +37,7 @@ namespace FF {
 
 	//资源回收..
 	void Application::clearUp() {
+		mInstance.reset(); // 关于 Vulkan的东西析构完毕..
 		glfwDestroyWindow(mWindow);
 
 		//退出..
