@@ -30,9 +30,12 @@ namespace FF::Wrapper {
 		// vaildationLayers..
 		bool checkVaildationLayersSupport();
 		void setupDebugger();
+
+		[[nodiscard]] VkInstance getInstance() const { return mInstance; }
+
 	private:
 
-		VkInstance mInstance;
+		VkInstance mInstance{VK_NULL_HANDLE};
 		bool bEnableValidationLayer = false;
 		VkDebugUtilsMessengerEXT mDebugger;
 	};

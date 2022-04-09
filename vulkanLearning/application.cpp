@@ -26,6 +26,7 @@ namespace FF {
 
 	void Application::initVulkan() {
 		mInstance = Wrapper::Instance::create(true);
+		mDevice = Wrapper::Device::create(mInstance);
 	}
 
 	void Application::mainLooper() {
@@ -37,7 +38,10 @@ namespace FF {
 
 	//资源回收..
 	void Application::clearUp() {
-		mInstance.reset(); // 关于 Vulkan的东西析构完毕..
+		// 关于 Vulkan的东西析构完毕..
+		mDevice.reset();
+		mInstance.reset();
+
 		glfwDestroyWindow(mWindow);
 
 		//退出..
