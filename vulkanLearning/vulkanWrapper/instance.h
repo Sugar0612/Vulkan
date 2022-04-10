@@ -18,12 +18,10 @@ namespace FF::Wrapper {
 		Instance(bool enableVaildationLayer);
 
 		~Instance();
-
 	public:
 
 		// 打印Vulkan里面所有的扩展名..
 		void printAvailableExtensions();
-
 
 		std::vector<const char*> getRequiredExtensions();
 
@@ -33,10 +31,13 @@ namespace FF::Wrapper {
 
 		[[nodiscard]] VkInstance getInstance() const { return mInstance; }
 
+		[[nodiscard]] bool getbEnableValidationLayer() const { return bEnableValidationLayer; }
+
+
 	private:
 
-		VkInstance mInstance{VK_NULL_HANDLE};
-		bool bEnableValidationLayer = false;
-		VkDebugUtilsMessengerEXT mDebugger;
+		VkInstance mInstance{ VK_NULL_HANDLE };
+		bool bEnableValidationLayer{ false };
+		VkDebugUtilsMessengerEXT mDebugger{ VK_NULL_HANDLE };
 	};
 };

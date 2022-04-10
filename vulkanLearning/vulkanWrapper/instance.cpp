@@ -2,11 +2,6 @@
 
 namespace FF::Wrapper {
 
-	// 设置 Layers..
-	const std::vector<const char*> validationLayers = {
-		"VK_LAYER_KHRONOS_validation"
-	};
-
 	//vadlidation layer回调函数
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallBack(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -153,7 +148,10 @@ namespace FF::Wrapper {
 	}
 
 	Instance::~Instance() {
-		DestroyDebugUtilsMessagerEXT(mInstance, nullptr, mDebugger);
+		//只有你开启了才可以析构...
+		if (bEnableValidationLayer) {
+			DestroyDebugUtilsMessagerEXT(mInstance, nullptr, mDebugger);
+		}
 		vkDestroyInstance(mInstance, nullptr);
 	}
 };
