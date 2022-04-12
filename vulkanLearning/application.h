@@ -3,6 +3,8 @@
 #include"base.h"
 #include"vulkanWrapper/instance.h"
 #include "vulkanWrapper/device.h"
+#include "vulkanWrapper/window.h"
+#include "vulkanWrapper/WindowSurface.h"
 
 namespace FF {
 
@@ -27,8 +29,10 @@ namespace FF {
 		void clearUp();
 
 	private:
-		GLFWwindow* mWindow = nullptr;
-		Wrapper::Instance::Inst_Ptr mInstance;
-		Wrapper::Device::Dev_Ptr mDevice;
+
+		Wrapper::Window::Ptr mWindow{ nullptr };
+		Wrapper::Instance::Inst_Ptr mInstance{ nullptr };
+		Wrapper::Device::Dev_Ptr mDevice{ nullptr };
+		Wrapper::WindowSurface::Ptr mWindowSurface{ nullptr };
 	};
 };

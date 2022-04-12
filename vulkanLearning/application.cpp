@@ -11,28 +11,20 @@ namespace FF {
 	}
 
 	void Application::initWindow() {
-		glfwInit();
-
-		// 关闭 Opengl API, 设置禁止改变窗口大小..
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-		mWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan window", nullptr, nullptr);
-
-		if (!mWindow) {
-			std::cout << "Error: Failed Create Window!" << std::endl;
-		}
+		mWindow = Wrapper::Window::create(WIDTH, HEIGHT);
 	}
 
 	void Application::initVulkan() {
 		mInstance = Wrapper::Instance::create(true);
+		mWindowSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
 		mDevice = Wrapper::Device::create(mInstance);
 	}
 
 	void Application::mainLooper() {
-		while (!glfwWindowShouldClose(mWindow)) {
+		while (!mWindow->WindowShouldClose()) {
 			//解析鼠标键盘事件..
-			glfwPollEvents();
+			//glfwPollEvents();
+			mWindow->PollEvents();
 		}
 	}
 
@@ -40,11 +32,8 @@ namespace FF {
 	void Application::clearUp() {
 		// 关于 Vulkan的东西析构完毕..
 		mDevice.reset();
+		mWindowSurface.reset();
 		mInstance.reset();
-
-		glfwDestroyWindow(mWindow);
-
-		//退出..
-		glfwTerminate();
+		mWindow.reset();
 	}
 }

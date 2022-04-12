@@ -152,6 +152,7 @@ namespace FF::Wrapper {
 		if (bEnableValidationLayer) {
 			DestroyDebugUtilsMessagerEXT(mInstance, nullptr, mDebugger);
 		}
+
 		vkDestroyInstance(mInstance, nullptr);
 	}
 };
