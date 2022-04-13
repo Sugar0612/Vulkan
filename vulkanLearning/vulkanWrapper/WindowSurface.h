@@ -14,6 +14,8 @@ namespace FF::Wrapper {
 
 		WindowSurface(Instance::Inst_Ptr instance, Window::Ptr window);
 
+		[[nodiscard]] auto getWindowSurface() const { return mSurface; }
+
 		~WindowSurface();
 
 	private:

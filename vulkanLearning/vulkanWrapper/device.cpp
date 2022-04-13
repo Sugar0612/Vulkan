@@ -1,8 +1,10 @@
 #include "device.h"
 
 namespace FF::Wrapper {
-	Device::Device(Instance::Inst_Ptr instance) {
+	Device::Device(Instance::Inst_Ptr instance, WindowSurface::Ptr windowSurface) {
 		mInstance = instance;
+		mWindowSurface = windowSurface;
+
 		pickDevicePhysical();
 		initQueueFamilies(mPhysicalDevice);
 		createLogicalDevice();
@@ -11,6 +13,7 @@ namespace FF::Wrapper {
 	Device::~Device() {
 		//vkDestroyDevice(mDevice, nullptr);
 		mInstance.reset();
+		mWindowSurface.reset();
 	}
 
 	void Device::pickDevicePhysical() {
@@ -100,8 +103,15 @@ namespace FF::Wrapper {
 				mGraphicQueueFamily = i;
 			}
 
+			VkBool32 presentSupport = VK_FALSE;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mWindowSurface->getWindowSurface(), &presentSupport);
+			
+			if (presentSupport) {
+				mPresentQueueFamily = i;
+			}
+
 			//找到具有图形功能的队列，那么退出遍历...
-			if (mGraphicQueueFamily.has_value()) {
+			if (isQueueFamilyCompliete()) {
 				break;
 			}
 			++i;
@@ -109,24 +119,34 @@ namespace FF::Wrapper {
 	}
 
 	void Device::createLogicalDevice() {
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = mGraphicQueueFamily.value();
-		queueCreateInfo.queueCount = 1;
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		std::set<uint32_t> queueFamilies{ mGraphicQueueFamily.value(), mPresentQueueFamily.value() };
 
-		//优先级...
-		float queuePriority = 1.0;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		for (auto queueFamily : queueFamilies) {
+			VkDeviceQueueCreateInfo queueCreateInfo = {};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = queueFamily;
+			queueCreateInfo.queueCount = 1;
+
+			//优先级...
+			float queuePriority = 1.0;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+
+			queueCreateInfos.push_back(queueCreateInfo);
+		}
+
+		
 
 		//填写逻辑信息
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-		deviceCreateInfo.queueCreateInfoCount = 1;
+		deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-		deviceCreateInfo.enabledExtensionCount = 0;
+		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceRequiredExtensions.size());
+		deviceCreateInfo.ppEnabledExtensionNames = deviceRequiredExtensions.data();
 
 		//Layer..
 		if (mInstance->getbEnableValidationLayer()) {
@@ -144,5 +164,11 @@ namespace FF::Wrapper {
 
 		//Create Queue..
 		vkGetDeviceQueue(mDevice, mGraphicQueueFamily.value(), 0, &mGraphicQueue);
+		vkGetDeviceQueue(mDevice, mPresentQueueFamily.value(), 0, &mPresentQueue);
+	}
+
+	bool Device::isQueueFamilyCompliete()
+	{
+		return mGraphicQueueFamily.has_value() && mPresentQueueFamily.has_value();
 	}
 };

@@ -17,7 +17,8 @@ namespace FF {
 	void Application::initVulkan() {
 		mInstance = Wrapper::Instance::create(true);
 		mWindowSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
-		mDevice = Wrapper::Device::create(mInstance);
+		mDevice = Wrapper::Device::create(mInstance, mWindowSurface);
+		mSwapChain = Wrapper::swapChain::create(mWindowSurface, mWindow, mDevice);
 	}
 
 	void Application::mainLooper() {
@@ -31,6 +32,8 @@ namespace FF {
 	//资源回收..
 	void Application::clearUp() {
 		// 关于 Vulkan的东西析构完毕..
+
+		mSwapChain.reset();
 		mDevice.reset();
 		mWindowSurface.reset();
 		mInstance.reset();

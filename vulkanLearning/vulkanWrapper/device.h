@@ -3,15 +3,23 @@
 
 #include "../base.h"
 #include "instance.h"
+#include "WindowSurface.h"
 
 namespace FF::Wrapper {
+
+	const std::vector<const char*> deviceRequiredExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
 	class Device {
 
 	public:
 		using Dev_Ptr = std::shared_ptr<Device>;
-		static Dev_Ptr create(Instance::Inst_Ptr instance) { return std::make_shared<Device>(instance); }
+		static Dev_Ptr create(Instance::Inst_Ptr instance, WindowSurface::Ptr windowSurface) { 
+			return std::make_shared<Device>(instance, windowSurface); 
+		}
 
-		Device(Instance::Inst_Ptr instance);
+		Device(Instance::Inst_Ptr instance, WindowSurface::Ptr windowSurface);
 
 		~Device();
 
@@ -29,6 +37,11 @@ namespace FF::Wrapper {
 		// 逻辑队列
 		void createLogicalDevice();
 
+		bool isQueueFamilyCompliete();
+
+		[[nodiscard]] auto getDevice() const { return mDevice; }
+		[[nodiscard]] auto getPhysicalDevice() const{ return mPhysicalDevice; }
+
 	private:
 
 		//物理显卡...
@@ -39,7 +52,14 @@ namespace FF::Wrapper {
 		std::optional<uint32_t> mGraphicQueueFamily;
 		VkQueue mGraphicQueue{ VK_NULL_HANDLE };
 
+		//队列显示族..
+		std::optional<uint32_t> mPresentQueueFamily;
+		VkQueue mPresentQueue{ VK_NULL_HANDLE };
+
 		//逻辑设备
 		VkDevice mDevice{ VK_NULL_HANDLE };
+
+
+		WindowSurface::Ptr mWindowSurface{ nullptr };
 	};
 };
