@@ -40,7 +40,10 @@ namespace FF::Wrapper {
 		bool isQueueFamilyCompliete();
 
 		[[nodiscard]] auto getDevice() const { return mDevice; }
-		[[nodiscard]] auto getPhysicalDevice() const{ return mPhysicalDevice; }
+		[[nodiscard]] auto getPhysicalDevice() const { return mPhysicalDevice; }
+
+		[[nodiscard]] auto getGraphicQueueFamily() const { return mGraphicQueueFamily; }
+		[[nodiscard]] auto getPresentQueueFamily() const { return mPresentQueueFamily; }
 
 	private:
 

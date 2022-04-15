@@ -41,8 +41,20 @@ namespace FF::Wrapper {
 		VkExtent2D chooseExent(const VkSurfaceCapabilitiesKHR& availableCapabilities);
 
 	private:
+		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevelsCount = 1);
+
+	private:
+
+		uint32_t mImageCount{ 0 };
 
 		VkSwapchainKHR mSwapChain{ VK_NULL_HANDLE };
+
+		VkFormat mSwapChainFormat;
+		VkExtent2D mSwapChainExtent2D;
+
+		std::vector<VkImage> mSwapChainImages{}; // image的创建与销毁，都要交给 swapChain..
+		std::vector<VkImageView> mSwapChainImageViews{}; // Image管理器..
+
 		WindowSurface::Ptr mWindowSurface{ nullptr };
 		Window::Ptr mWindow{ nullptr };
 		Device::Dev_Ptr mDevice{ nullptr };

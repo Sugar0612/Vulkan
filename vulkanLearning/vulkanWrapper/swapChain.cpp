@@ -6,9 +6,85 @@ namespace FF::Wrapper {
 	{
 		
 		auto swapChainSupportInfo = querySwapChainSupportInfo();
+
+		// 开始 info的筛选..
+		VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupportInfo.mFormats);
+		VkPresentModeKHR presentMode = choosePresentMode(swapChainSupportInfo.mPresentMode);
+		VkExtent2D extent = chooseExent(swapChainSupportInfo.mCapabilities);
+
+		//设置图像缓冲数量.. (如果 maxImageCount = 0, 说明内存不爆栈的情况下, imageCount可以随意大小..)
+		uint32_t mImageCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
+		if (swapChainSupportInfo.mCapabilities.maxImageCount > 0 && mImageCount > swapChainSupportInfo.mCapabilities.maxImageCount) {
+			mImageCount = swapChainSupportInfo.mCapabilities.maxImageCount;
+		}
+
+		//填写创建信息..
+		VkSwapchainCreateInfoKHR createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface = mWindowSurface->getWindowSurface();
+		createInfo.minImageCount = mImageCount;
+		createInfo.imageFormat = surfaceFormat.format;
+		createInfo.imageExtent = extent;
+
+		// VR = 2..
+		createInfo.imageArrayLayers = 1;
+
+		//交换链生成的图片 用于 何处..
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+		//交换链生成的图片可以用来 渲染 和 显示，而渲染 和 显示应用不同的队列...
+		//...所以需要设置让交换链的图片被两个队列兼容..
+
+		std::vector<uint32_t> queueFamilies = { mDevice->getGraphicQueueFamily().value(), mDevice->getPresentQueueFamily().value() };
+
+		if (mDevice->getGraphicQueueFamily().value() == mDevice->getPresentQueueFamily().value()) {
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; //一个队列独占..
+			createInfo.queueFamilyIndexCount = 0;
+			createInfo.pQueueFamilyIndices = nullptr;
+		}
+		else {
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; //双队列共享..
+			createInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilies.size());
+			createInfo.pQueueFamilyIndices = queueFamilies.data();
+		}
+
+
+		//交换图片的图像变化，如：图片反转..
+		createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;
+
+		//不与原来窗体中的内容混合..
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+		createInfo.presentMode = presentMode;
+
+		//窗体被遮挡的部分，不用绘制，但会影响回读..
+		createInfo.clipped = VK_TRUE;
+
+		if (vkCreateSwapchainKHR(mDevice->getDevice(), &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
+			std::runtime_error("Error: failed to create swapChain.");
+		}
+
+		mSwapChainFormat = surfaceFormat.format;
+		mSwapChainExtent2D = extent;
+
+		//系统可能有更多的image，当前 mImageCount 数量是最少的...
+		vkGetSwapchainImagesKHR(mDevice->getDevice(), mSwapChain, &mImageCount, nullptr);
+
+		mSwapChainImages.resize(mImageCount);
+		vkGetSwapchainImagesKHR(mDevice->getDevice(), mSwapChain, &mImageCount, mSwapChainImages.data());
+
+		//创建 ImageView..
+		mSwapChainImageViews.resize(mImageCount);
+		for (int i = 0; i < mImageCount; ++i) {
+			mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		}
 	}
 
 	swapChain::~swapChain() {
+		for (int i = 0; i < mSwapChainImageViews.size(); ++i) {
+			vkDestroyImageView(mDevice->getDevice(), mSwapChainImageViews[i], nullptr);
+		}
+
 		if (mSwapChain != VK_NULL_HANDLE) {
 			vkDestroySwapchainKHR(mDevice->getDevice(), mSwapChain, nullptr);
 		}
@@ -110,5 +186,28 @@ namespace FF::Wrapper {
 			std::min(availableCapabilities.maxImageExtent.height, actualExtent.height));
 
 		return actualExtent;
+	}
+
+
+	VkImageView swapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevelsCount)
+	{
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = mipLevelsCount;
+		viewInfo.subresourceRange.layerCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+
+		VkImageView imageView{ VK_NULL_HANDLE };
+		if (vkCreateImageView(mDevice->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+			throw std::runtime_error("Error: failed to craete ImageVeiw.");
+		}
+
+		return imageView;
 	}
 }
