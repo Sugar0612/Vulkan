@@ -6,6 +6,7 @@
 #include "vulkanWrapper/window.h"
 #include "vulkanWrapper/WindowSurface.h"
 #include "vulkanWrapper/swapChain.h"
+#include "vulkanWrapper/Shader.h"
 
 namespace FF {
 
@@ -36,5 +37,6 @@ namespace FF {
 		Wrapper::Device::Dev_Ptr mDevice{ nullptr };
 		Wrapper::WindowSurface::Ptr mWindowSurface{ nullptr };
 		Wrapper::swapChain::Ptr mSwapChain{ nullptr };
+		Wrapper::Shader::Ptr mShader{ nullptr };
 	};
 };
