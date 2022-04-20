@@ -18,6 +18,10 @@ namespace FF::Wrapper {
 
 		~Shader();
 
+		[[nodiscard]] auto getShaderModule() const { return mShaderModule; }
+		[[nodiscard]] auto getEntryPoint() const { return mEntryPoint; }
+		[[nodiscard]] auto getShaderStage() const { return mShaderStage; }
+
 	private:
 
 		VkShaderModule mShaderModule{ VK_NULL_HANDLE };

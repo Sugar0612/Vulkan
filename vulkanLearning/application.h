@@ -7,6 +7,7 @@
 #include "vulkanWrapper/WindowSurface.h"
 #include "vulkanWrapper/swapChain.h"
 #include "vulkanWrapper/Shader.h"
+#include "vulkanWrapper/pipline.h"
 
 namespace FF {
 
@@ -30,6 +31,10 @@ namespace FF {
 
 		void clearUp();
 
+
+	private:
+		void createPipeline();
+
 	private:
 
 		Wrapper::Window::Ptr mWindow{ nullptr };
@@ -37,6 +42,7 @@ namespace FF {
 		Wrapper::Device::Dev_Ptr mDevice{ nullptr };
 		Wrapper::WindowSurface::Ptr mWindowSurface{ nullptr };
 		Wrapper::swapChain::Ptr mSwapChain{ nullptr };
-		Wrapper::Shader::Ptr mShader{ nullptr };
+		Wrapper::Pipline::Ptr mPipline{ nullptr };
+
 	};
 };
