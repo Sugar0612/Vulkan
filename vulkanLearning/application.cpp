@@ -34,7 +34,7 @@ namespace FF {
 	//资源回收..
 	void Application::clearUp() {
 		// 关于 Vulkan的东西析构完毕..
-
+		mPipline.reset();
 		mSwapChain.reset();
 		mDevice.reset();
 		mWindowSurface.reset();
@@ -45,6 +45,7 @@ namespace FF {
 
 	void Application::createPipeline()
 	{
+		//设置视口..
 		VkViewport viewport = {};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
@@ -58,6 +59,10 @@ namespace FF {
 		scissor.offset = { 0, 0 };
 		scissor.extent = { WIDTH, HEIGHT };
 		
+		mPipline->setViewports({ viewport });
+		mPipline->setScissors({ scissor });
+
+		//设置Shader..
 		std::vector<Wrapper::Shader::Ptr> shaderGroup{};
 
 		auto shaderVertex = Wrapper::Shader::create(mDevice, "Shader/vert.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
@@ -79,5 +84,64 @@ namespace FF {
 		mPipline->mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		mPipline->mAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; //拓扑..
 		mPipline->mAssemblyState.primitiveRestartEnable = VK_FALSE;
+
+		//光栅化..
+		mPipline->mRasterState.polygonMode = VK_POLYGON_MODE_FILL; // 其他模式需要开启 gpu..
+		mPipline->mRasterState.lineWidth = 1.0f; // 大于1 需要开启 gpu..
+		mPipline->mRasterState.cullMode = VK_CULL_MODE_BACK_BIT;
+		mPipline->mRasterState.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		mPipline->mRasterState.depthBiasEnable = VK_FALSE; // depthBiasClamp可以设置一些关于z轴遮挡的数值..目前是关闭的..
+		mPipline->mRasterState.depthBiasConstantFactor = 0.0f;
+		mPipline->mRasterState.depthBiasClamp = 0.0f;
+		mPipline->mRasterState.depthBiasSlopeFactor = 0.0f;
+
+		//多重采样..
+		mPipline->mSampleState.sampleShadingEnable = VK_FALSE;
+		mPipline->mSampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		mPipline->mSampleState.minSampleShading = 1.0f;
+		mPipline->mSampleState.pSampleMask = nullptr;
+		mPipline->mSampleState.alphaToCoverageEnable = VK_FALSE;
+		mPipline->mSampleState.alphaToOneEnable = VK_FALSE;
+
+		//颜色混合.. alpha基础运算..
+		VkPipelineColorBlendAttachmentState blendAttachment;
+
+		blendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+			VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //得到颜色混合结果，按照通道掩码 and 操作输出..
+
+		blendAttachment.blendEnable = VK_FALSE;
+		blendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+		blendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+		blendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+
+		blendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		blendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		blendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		mPipline->mBlendAttachmentStates.push_back(blendAttachment);
+
+		// 颜色混合位运算..
+
+		mPipline->mBlendState.logicOpEnable = VK_FALSE; // 如果开启 logicOp 那么基于 alpha的基础运算失效..
+		mPipline->mBlendState.logicOp = VK_LOGIC_OP_COPY;
+
+		//配合 blendAttachment的 Factor 与 op.. RGBA..(与图片的 alpha混合有关..)
+		mPipline->mBlendState.blendConstants[0] = 0.f;
+		mPipline->mBlendState.blendConstants[1] = 0.f;
+		mPipline->mBlendState.blendConstants[2] = 0.f;
+		mPipline->mBlendState.blendConstants[3] = 0.f;
+
+		// uniform传递..
+		mPipline->mLayoutState.setLayoutCount = 0;
+		mPipline->mLayoutState.pSetLayouts = nullptr;
+		mPipline->mLayoutState.pushConstantRangeCount = 0;
+		mPipline->mLayoutState.pPushConstantRanges = nullptr;
+
+		//mPipline->build();
+	}
+
+	void Application::createRenderPass()
+	{
+		
 	}
 }

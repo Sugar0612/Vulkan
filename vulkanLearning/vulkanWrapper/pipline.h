@@ -17,7 +17,14 @@ namespace FF::Wrapper {
 
 		void setShaderGroup(std::vector<Shader::Ptr>& shaderGroup);
 
+		void setViewports(const std::vector<VkViewport>& viewports) { mViewPorts = viewports; }
+		void setScissors(const std::vector<VkRect2D>& scissors) { mScissors = scissors; }
+
 		void build();
+
+		void pushPipelineAttachment(const VkPipelineColorBlendAttachmentState& blendAttachment) {
+			mBlendAttachmentStates.push_back(blendAttachment);
+		}
 
 	public:
 
@@ -26,10 +33,12 @@ namespace FF::Wrapper {
 		VkPipelineViewportStateCreateInfo mViewportState{};
 		VkPipelineRasterizationStateCreateInfo mRasterState{};
 		VkPipelineMultisampleStateCreateInfo mSampleState{};
-		VkPipelineColorBlendAttachmentState mBlendAttachmentState{};
+		std::vector<VkPipelineColorBlendAttachmentState> mBlendAttachmentStates{};
 		VkPipelineColorBlendStateCreateInfo mBlendState{};
 		VkPipelineDepthStencilStateCreateInfo mDepthState{};
 		VkPipelineLayoutCreateInfo mLayoutState{};
+
+		//todo: RenderPass..
 
 	private:
 
@@ -37,5 +46,8 @@ namespace FF::Wrapper {
 		VkPipelineLayout mLayout{ VK_NULL_HANDLE };
 		Device::Dev_Ptr mDevice{ nullptr };
 		std::vector<Shader::Ptr> mShaders{};
+
+		std::vector<VkViewport> mViewPorts;
+		std::vector<VkRect2D> mScissors;
 	};
 }

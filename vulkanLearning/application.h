@@ -8,6 +8,7 @@
 #include "vulkanWrapper/swapChain.h"
 #include "vulkanWrapper/Shader.h"
 #include "vulkanWrapper/pipline.h"
+#include "vulkanWrapper/renderPass.h"
 
 namespace FF {
 
@@ -35,6 +36,8 @@ namespace FF {
 	private:
 		void createPipeline();
 
+		void createRenderPass();
+
 	private:
 
 		Wrapper::Window::Ptr mWindow{ nullptr };
@@ -43,6 +46,6 @@ namespace FF {
 		Wrapper::WindowSurface::Ptr mWindowSurface{ nullptr };
 		Wrapper::swapChain::Ptr mSwapChain{ nullptr };
 		Wrapper::Pipline::Ptr mPipline{ nullptr };
-
+		Wrapper::RenderPass::Ptr mRenderPass{ nullptr };
 	};
 };
