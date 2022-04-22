@@ -42,7 +42,8 @@ namespace FF::Wrapper {
 		mSubPassDesription.inputAttachmentCount = static_cast<uint32_t>(mInputAttachmentReference.size());
 		mSubPassDesription.pInputAttachments = mInputAttachmentReference.data();
 
-		mSubPassDesription.pDepthStencilAttachment = &mDepthStencilAttachmentReference;
+		mSubPassDesription.pDepthStencilAttachment = mDepthStencilAttachmentReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? 
+			nullptr : &mDepthStencilAttachmentReference;
 	}
 
 	RenderPass::RenderPass(Device::Dev_Ptr& device):
@@ -87,7 +88,7 @@ namespace FF::Wrapper {
 			Subpasses.push_back(mSubPasses[i].getSubPassDesription());
 		}
 
-		VkRenderPassCreateInfo createInfo;
+		VkRenderPassCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 
 		createInfo.attachmentCount = static_cast<uint32_t>(mAttachmentDescripitions.size());

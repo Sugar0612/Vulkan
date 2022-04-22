@@ -2,6 +2,7 @@
 #include "../base.h"
 #include "device.h"
 #include "Shader.h"
+#include "renderPass.h"
 
 namespace FF::Wrapper {
 	class Pipline {
@@ -9,9 +10,9 @@ namespace FF::Wrapper {
 	public:
 
 		using Ptr = std::shared_ptr<Pipline>;
-		static Ptr create(Device::Dev_Ptr& device) { return std::make_shared<Pipline>(device); }
+		static Ptr create(Device::Dev_Ptr& device, RenderPass::Ptr& renderpass) { return std::make_shared<Pipline>(device, renderpass); }
 
-		Pipline(Device::Dev_Ptr& device);
+		Pipline(Device::Dev_Ptr& device, RenderPass::Ptr& renderpass);
 
 		~Pipline();
 
@@ -45,9 +46,12 @@ namespace FF::Wrapper {
 		VkPipeline mPipline{ VK_NULL_HANDLE };
 		VkPipelineLayout mLayout{ VK_NULL_HANDLE };
 		Device::Dev_Ptr mDevice{ nullptr };
+		RenderPass::Ptr mRenderPass{ nullptr };
+
 		std::vector<Shader::Ptr> mShaders{};
 
 		std::vector<VkViewport> mViewPorts;
 		std::vector<VkRect2D> mScissors;
+		
 	};
 }

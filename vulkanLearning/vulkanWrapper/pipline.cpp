@@ -1,8 +1,8 @@
 #include "pipline.h"
 
 namespace FF::Wrapper {
-	Pipline::Pipline(Device::Dev_Ptr& device):
-		mDevice(device)
+	Pipline::Pipline(Device::Dev_Ptr& device, RenderPass::Ptr& renderpass):
+		mDevice(device), mRenderPass(renderpass)
 	{
 		mVertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		mAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -82,7 +82,7 @@ namespace FF::Wrapper {
 		pipelineCreateInfo.pDepthStencilState = nullptr; // todo: ..
 		pipelineCreateInfo.layout = mLayout;
 		
-		pipelineCreateInfo.renderPass = VK_NULL_HANDLE; // todo: ..
+		pipelineCreateInfo.renderPass = mRenderPass->getRenderPass(); // todo: ..
 		pipelineCreateInfo.subpass = 0;
 
 		//已存在的 pipeline为父类进行创建，需要 flags 为 VK_PIPELINE_CREATE_DERIVATIVE_BIT

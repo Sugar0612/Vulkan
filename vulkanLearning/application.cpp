@@ -19,7 +19,13 @@ namespace FF {
 		mWindowSurface = Wrapper::WindowSurface::create(mInstance, mWindow);
 		mDevice = Wrapper::Device::create(mInstance, mWindowSurface);
 		mSwapChain = Wrapper::swapChain::create(mWindowSurface, mWindow, mDevice);
-		mPipline = Wrapper::Pipline::create(mDevice);
+
+		mRenderPass = Wrapper::RenderPass::create(mDevice);
+		createRenderPass();
+
+		mSwapChain->createFrameBuffers(mRenderPass);
+
+		mPipline = Wrapper::Pipline::create(mDevice, mRenderPass);
 		createPipeline();
 	}
 
@@ -34,7 +40,9 @@ namespace FF {
 	//资源回收..
 	void Application::clearUp() {
 		// 关于 Vulkan的东西析构完毕..
+
 		mPipline.reset();
+		mRenderPass.reset();
 		mSwapChain.reset();
 		mDevice.reset();
 		mWindowSurface.reset();
@@ -142,6 +150,37 @@ namespace FF {
 
 	void Application::createRenderPass()
 	{
-		
+		VkAttachmentDescription attachmentDes{};
+		attachmentDes.format = mSwapChain->getFormat();
+		attachmentDes.samples = VK_SAMPLE_COUNT_1_BIT;
+		attachmentDes.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachmentDes.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // 输出..
+		attachmentDes.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachmentDes.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachmentDes.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachmentDes.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		mRenderPass->addAttachmentDescription(attachmentDes);
+
+		VkAttachmentReference attachmentRef{};
+		attachmentRef.attachment = 0;
+		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		Wrapper::SubPass subPass{};
+		subPass.addColorAttachmentReference(attachmentRef);
+		subPass.buildSubPassDesription();
+
+		mRenderPass->addSubPass(subPass);
+
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		mRenderPass->addSubPassDependency(dependency);
+		mRenderPass->buildRenderPass();
 	}
 }

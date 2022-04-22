@@ -20,11 +20,13 @@ namespace FF::Wrapper {
 		~SubPass();
 
 		[[nodiscard]] auto getSubPassDesription() const { return mSubPassDesription; }
-
-	private:
+	
 		void addColorAttachmentReference(const VkAttachmentReference& ref);
+
 		void addInputAttachmentReference(const VkAttachmentReference& ref);
+
 		void setDepthStenciAttachmentReference(const VkAttachmentReference& ref);
+
 		void buildSubPassDesription();
 
 	private:
@@ -53,9 +55,12 @@ namespace FF::Wrapper {
 		void addAttachmentDescription(const VkAttachmentDescription& attachment);
 
 		void buildRenderPass();
+
+		[[nodiscard]] auto getRenderPass() const { return mRenderPass; }
+
 	private:
-		VkRenderPass mRenderPass;
-		std::vector<SubPass> mSubPasses;
+		VkRenderPass mRenderPass{ VK_NULL_HANDLE };
+		std::vector<SubPass> mSubPasses{};
 		std::vector<VkSubpassDependency> mDependencies{};
 		std::vector<VkAttachmentDescription> mAttachmentDescripitions{}; // 每个attachment的细节信息..
 

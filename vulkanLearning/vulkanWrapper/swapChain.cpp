@@ -89,6 +89,10 @@ namespace FF::Wrapper {
 			vkDestroySwapchainKHR(mDevice->getDevice(), mSwapChain, nullptr);
 		}
 
+		for (int i = 0; i < mSwapChainFrameBuffers.size(); ++i) {
+			vkDestroyFramebuffer(mDevice->getDevice(), mSwapChainFrameBuffers[i], nullptr);
+		}
+
 		mWindow.reset();
 		mWindowSurface.reset();
 		mDevice.reset();
@@ -186,6 +190,28 @@ namespace FF::Wrapper {
 			std::min(availableCapabilities.maxImageExtent.height, actualExtent.height));
 
 		return actualExtent;
+	}
+
+	void swapChain::createFrameBuffers(const RenderPass::Ptr& renderpass)
+	{
+		mSwapChainFrameBuffers.resize(mImageCount);
+		for (int i = 0; i < mImageCount; ++i) {
+			std::array<VkImageView, 1> attachments = { mSwapChainImageViews[i] };
+
+			VkFramebufferCreateInfo frameBufferCreateInfo{};
+			frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			frameBufferCreateInfo.renderPass = renderpass->getRenderPass();
+			frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+			frameBufferCreateInfo.pAttachments = attachments.data();
+			frameBufferCreateInfo.width = mSwapChainExtent2D.width;
+			frameBufferCreateInfo.height = mSwapChainExtent2D.height;
+			frameBufferCreateInfo.layers = 1;
+
+			if (vkCreateFramebuffer(mDevice->getDevice(), &frameBufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]) != VK_SUCCESS) {
+				throw std::runtime_error("Error: failed create to framebuffer.");
+			}
+		}
+	
 	}
 
 

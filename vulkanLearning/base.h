@@ -11,6 +11,7 @@
 #include<GLFW/glfw3.h>
 #include<vulkan/vulkan.h>
 #include <vector>
+#include <array>
 
 // …Ë÷√ Layers..
 const std::vector<const char*> validationLayers = {

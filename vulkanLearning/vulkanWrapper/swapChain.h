@@ -3,6 +3,7 @@
 #include"WindowSurface.h"
 #include"window.h"
 #include"device.h"
+#include"renderPass.h"
 
 namespace FF::Wrapper {
 
@@ -40,7 +41,12 @@ namespace FF::Wrapper {
 		//合适的窗口大小..
 		VkExtent2D chooseExent(const VkSurfaceCapabilitiesKHR& availableCapabilities);
 
+		void createFrameBuffers(const RenderPass::Ptr& renderpass);
+
+		[[nodiscard]] auto getFormat() const { return mSwapChainFormat; }
+
 	private:
+
 		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevelsCount = 1);
 
 	private:
@@ -54,6 +60,7 @@ namespace FF::Wrapper {
 
 		std::vector<VkImage> mSwapChainImages{}; // image的创建与销毁，都要交给 swapChain..
 		std::vector<VkImageView> mSwapChainImageViews{}; // Image管理器..
+		std::vector<VkFramebuffer> mSwapChainFrameBuffers{};
 
 		WindowSurface::Ptr mWindowSurface{ nullptr };
 		Window::Ptr mWindow{ nullptr };
